@@ -14,28 +14,67 @@
         --bg-color-tab-hover: #3a4c54;
         --bg-color-button-hover: white;
         --border-radius-button: 8px;
-        --border-radius-tab: 99px;
+        --border-radius-tab: 999px;
         --hover-scale: 1.08;
         --transition-speed: 0.3s;
+        --size-10: 10px;
         --size-16: 16px;
+        --size-32: 32px;
       }
 
       body {
-        margin: var(--size-16);
+        margin: var(--size-32) var(--size-16);
       }
 
       #colorPicker {
         display: flex;
         gap: 18px;
         justify-content: center;
+        margin-bottom: var(--size-32);
+      }
+
+      #tabMenu {
+        display: flex;
+        gap: 4px;
+        justify-content: center;
         margin-bottom: var(--size-16);
+        background-color: var(--bg-color-tab);
+        padding: 6px;
+        border-radius: var(--border-radius-tab);
+      }
+
+      .tab-item {
+        color: var(--color-text);
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+        padding: var(--size-10) 19px;
+        border-radius: var(--border-radius-tab);
+      }
+
+      .tab-item:hover {
+        background: var(--bg-color-tab-hover);
+      }
+
+      .tab-item.active {
+        background: var(--bg-color-tab-active);
+        color: white;
+      }
+
+      button {
+        background-color: transparent;
       }
     </style>
   </head>
   <body>
     <div id="colorPicker"></div>
+    <div id="tabMenu"></div>
+    <div id="smileyContainer"></div>
     <script>
       const colorPicker = document.getElementById("colorPicker");
+      const tabMenu = document.getElementById("tabMenu");
+      const smileyContainer = document.getElementById("smileyContainer");
 
       const ColorCombinations = [
         { light: "#67C1E4", dark: "#0369A1" }, // Sky Thinker
@@ -47,8 +86,10 @@
         { light: "#9CA3AF", dark: "#3F3F46" }, // Neutral Ground
       ];
 
+      const MenuItems = ["Happy", "Sad", "Angry", "Excited", "Calm", "Anxious"];
+
       /* ------------------------------------------------------------------
-      Create Color Picker UI
+      Create Color Picker
       ------------------------------------------------------------------ */
       function createColorPicker() {
         ColorCombinations.forEach(({ light, dark }) => {
@@ -63,7 +104,7 @@
 
           swatch.addEventListener("click", () => {
             console.log("Selected:", { light, dark });
-            // WIP Color combo for a smiley
+            // ToDo: Color combo for a smiley
           });
 
           colorPicker.appendChild(swatch);
@@ -71,6 +112,38 @@
       }
 
       createColorPicker();
+
+      /* ------------------------------------------------------------------
+      Create Tab Menu
+      ------------------------------------------------------------------ */
+      function createTabMenu() {
+        MenuItems.forEach((label, index) => {
+          const tab = document.createElement("button");
+          tab.textContent = label;
+          tab.className = "tab-item";
+
+          // Default first tab as active
+          if (index === 0) tab.classList.add("active");
+
+          tab.addEventListener("click", () => {
+            document
+              .querySelectorAll(".tab-item")
+              .forEach((btn) => btn.classList.remove("active"));
+            tab.classList.add("active");
+
+            console.log("Switched to tab:", label);
+            // TODO: Load relevant smileys for this mood
+          });
+
+          tabMenu.appendChild(tab);
+        });
+      }
+
+      createTabMenu();
+
+      /* ------------------------------------------------------------------
+      Load Smileys to UI
+      ------------------------------------------------------------------ */
     </script>
   </body>
 </html>
