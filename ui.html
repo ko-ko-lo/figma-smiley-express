@@ -1,18 +1,76 @@
-<h2>Rectangle Creator</h2>
-<p>Count: <input id="count" type="number" value="5" /></p>
-<button id="create">Create</button>
-<button id="cancel">Cancel</button>
-<script>
-  document.getElementById("create").onclick = () => {
-    const textbox = document.getElementById("count");
-    const count = parseInt(textbox.value, 10);
-    parent.postMessage(
-      { pluginMessage: { type: "create-shapes", count } },
-      "*"
-    );
-  };
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smiley Express</title>
+    <style>
+      :root {
+        --bg-color-tab: #263136;
+        --bg-color-button: #f0f3f5;
+        --color-text: #f0f3f5;
+        --color-border: #9eb2bc;
+        --bg-color-tab-active: #4d6470;
+        --bg-color-tab-hover: #3a4c54;
+        --bg-color-button-hover: white;
+        --border-radius-button: 8px;
+        --border-radius-tab: 99px;
+        --hover-scale: 1.08;
+        --transition-speed: 0.3s;
+        --size-16: 16px;
+      }
 
-  document.getElementById("cancel").onclick = () => {
-    parent.postMessage({ pluginMessage: { type: "cancel" } }, "*");
-  };
-</script>
+      body {
+        margin: var(--size-16);
+      }
+
+      #colorPicker {
+        display: flex;
+        gap: 18px;
+        justify-content: center;
+        margin-bottom: var(--size-16);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="colorPicker"></div>
+    <script>
+      const colorPicker = document.getElementById("colorPicker");
+
+      const ColorCombinations = [
+        { light: "#67C1E4", dark: "#0369A1" }, // Sky Thinker
+        { light: "#A78BFA", dark: "#5B21B6" }, // Lavender Logic
+        { light: "#F59E58", dark: "#C2410C" }, // Bold Blaze
+        { light: "#34D399", dark: "#065F46" }, // Green Path
+        { light: "#F472B6", dark: "#BE185D" }, // Warm Bloom
+        { light: "#FACC15", dark: "#A16207" }, // Golden Idea
+        { light: "#9CA3AF", dark: "#3F3F46" }, // Neutral Ground
+      ];
+
+      /* ------------------------------------------------------------------
+      Create Color Picker UI
+      ------------------------------------------------------------------ */
+      function createColorPicker() {
+        ColorCombinations.forEach(({ light, dark }) => {
+          const swatch = document.createElement("div");
+          swatch.style.width = "40px";
+          swatch.style.height = "40px";
+          swatch.style.borderRadius = "50%";
+          swatch.style.cursor = "pointer";
+          swatch.style.background = `linear-gradient(to right, ${light} 50%, ${dark} 50%)`;
+
+          swatch.title = `${light} / ${dark}`;
+
+          swatch.addEventListener("click", () => {
+            console.log("Selected:", { light, dark });
+            // WIP Color combo for a smiley
+          });
+
+          colorPicker.appendChild(swatch);
+        });
+      }
+
+      createColorPicker();
+    </script>
+  </body>
+</html>
