@@ -26,6 +26,30 @@
         margin: var(--size-32) var(--size-16);
       }
 
+      .smiley {
+        cursor: pointer;
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius-button);
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--bg-color-button);
+        transition: transform var(--transition-speed),
+          box-shadow var(--transition-speed);
+      }
+
+      #smileyList {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      svg {
+        padding: 40px;
+        transition: transform var(--transition-speed);
+      }
+
       #colorPicker {
         display: flex;
         gap: 18px;
@@ -70,23 +94,51 @@
   <body>
     <div id="colorPicker"></div>
     <div id="tabMenu"></div>
-    <div id="smileyContainer"></div>
+    <div id="smileyList"></div>
     <script>
       const colorPicker = document.getElementById("colorPicker");
       const tabMenu = document.getElementById("tabMenu");
-      const smileyContainer = document.getElementById("smileyContainer");
 
       const ColorCombinations = [
-        { light: "#67C1E4", dark: "#0369A1" }, // Sky Thinker
-        { light: "#A78BFA", dark: "#5B21B6" }, // Lavender Logic
-        { light: "#F59E58", dark: "#C2410C" }, // Bold Blaze
-        { light: "#34D399", dark: "#065F46" }, // Green Path
-        { light: "#F472B6", dark: "#BE185D" }, // Warm Bloom
-        { light: "#FACC15", dark: "#A16207" }, // Golden Idea
-        { light: "#9CA3AF", dark: "#3F3F46" }, // Neutral Ground
+        { light: "#1994D1", dark: "#0369A1" }, // Sky Thinker
+        { light: "#7C5BF9", dark: "#5B21B6" }, // Lavender Logic
+        { light: "#DD6B20", dark: "#C2410C" }, // Bold Blaze
+        { light: "#059669", dark: "#065F46" }, // Green Path
+        { light: "#DB2777", dark: "#BE185D" }, // Warm Bloom
+        { light: "#D97706", dark: "#A16207" }, // Golden Idea
+        { light: "#6B7280", dark: "#3F3F46" }, // Neutral Ground
       ];
 
       const MenuItems = ["Happy", "Sad", "Angry", "Excited", "Calm", "Anxious"];
+
+      /* ------------------------------------------------------------------
+      Send request for smileys to code.ts when the UI loads
+      ------------------------------------------------------------------ */
+
+      window.onload = () => {
+        parent.postMessage({ pluginMessage: { type: "request-smileys" } }, "*");
+      };
+
+      /* ------------------------------------------------------------------
+      Handle incoming messages from code.ts
+      ------------------------------------------------------------------ */
+
+      window.onmessage = (event) => {
+        const msg = event.data.pluginMessage;
+        if (!msg) return;
+
+        if (msg.type === "load-smileys") {
+          const smileyList = document.getElementById("smileyList");
+
+          msg.smileys.forEach((smiley) => {
+            const div = document.createElement("div");
+            div.classList.add("smiley");
+            div.innerHTML = smiley.svg;
+
+            smileyList.appendChild(div);
+          });
+        }
+      };
 
       /* ------------------------------------------------------------------
       Create Color Picker
@@ -140,10 +192,6 @@
       }
 
       createTabMenu();
-
-      /* ------------------------------------------------------------------
-      Load Smileys to UI
-      ------------------------------------------------------------------ */
     </script>
   </body>
 </html>
