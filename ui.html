@@ -57,6 +57,10 @@
         margin-bottom: var(--size-32);
       }
 
+      .selected {
+        box-shadow: inset 0 0 0 1px var(--bg-color-tab);
+      }
+
       #tabMenu {
         display: flex;
         gap: 4px;
@@ -122,30 +126,27 @@
       /* ------------------------------------------------------------------
       Handle incoming messages from code.ts
       ------------------------------------------------------------------ */
+      let allSmileys = [];
 
       window.onmessage = (event) => {
         const msg = event.data.pluginMessage;
         if (!msg) return;
 
         if (msg.type === "load-smileys") {
-          const smileyList = document.getElementById("smileyList");
-
-          msg.smileys.forEach((smiley) => {
-            const div = document.createElement("div");
-            div.classList.add("smiley");
-            div.innerHTML = smiley.svg;
-
-            smileyList.appendChild(div);
-          });
+          allSmileys = msg.smileys;
+          renderSmileys();
         }
       };
 
       /* ------------------------------------------------------------------
       Create Color Picker
       ------------------------------------------------------------------ */
+      let selectedColor = ColorCombinations[6];
+
       function createColorPicker() {
         ColorCombinations.forEach(({ light, dark }) => {
           const swatch = document.createElement("div");
+          swatch.classList.add("color-circle");
           swatch.style.width = "40px";
           swatch.style.height = "40px";
           swatch.style.borderRadius = "50%";
@@ -155,8 +156,14 @@
           swatch.title = `${light} / ${dark}`;
 
           swatch.addEventListener("click", () => {
-            console.log("Selected:", { light, dark });
             // ToDo: Color combo for a smiley
+            selectedColor = { light, dark };
+            document
+              .querySelectorAll(".color-circle")
+              .forEach((c) => c.classList.remove("selected"));
+            swatch.classList.add("selected");
+
+            renderSmileys(); // refresh smileys with new color
           });
 
           colorPicker.appendChild(swatch);
@@ -164,6 +171,37 @@
       }
 
       createColorPicker();
+
+      /* ------------------------------------------------------------------
+      Function that
+      - clears the old smileys
+      - loops over the loaded smileys array
+      - applies the current selectedColor
+      - inserts updated SVGs into the UI
+      ------------------------------------------------------------------ */
+      function renderSmileys() {
+        const smileyList = document.getElementById("smileyList");
+        smileyList.innerHTML = "";
+
+        allSmileys.forEach((smiley) => {
+          const div = document.createElement("div");
+          div.classList.add("smiley");
+
+          // Replace colors inside SVG string
+          const svgWithColor = smiley.svg
+            .replace(
+              /class="base".*?fill=".*?"/,
+              `class="base" fill="${selectedColor.light}"`
+            )
+            .replace(
+              /class="face".*?fill=".*?"/g,
+              `class="face" fill="${selectedColor.dark}"`
+            );
+
+          div.innerHTML = svgWithColor;
+          smileyList.appendChild(div);
+        });
+      }
 
       /* ------------------------------------------------------------------
       Create Tab Menu
