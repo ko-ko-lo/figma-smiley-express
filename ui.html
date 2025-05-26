@@ -41,13 +41,18 @@
 
       #smileyList {
         display: flex;
-        gap: 16px;
+        gap: var(--size-16);
         flex-wrap: wrap;
       }
 
       svg {
         padding: 40px;
         transition: transform var(--transition-speed);
+      }
+
+      svg:hover {
+        transform: scale(var(--hover-scale));
+        transition: all 0.3s ease-in-out;
       }
 
       #colorPicker {
@@ -115,6 +120,10 @@
 
       const MenuItems = ["Happy", "Sad", "Angry", "Excited", "Calm", "Anxious"];
 
+      let selectedColor = ColorCombinations[6];
+
+      let currentMood = "Happy";
+
       /* ------------------------------------------------------------------
       Send request for smileys to code.ts when the UI loads
       ------------------------------------------------------------------ */
@@ -141,8 +150,6 @@
       /* ------------------------------------------------------------------
       Create Color Picker
       ------------------------------------------------------------------ */
-      let selectedColor = ColorCombinations[6];
-
       function createColorPicker() {
         ColorCombinations.forEach(({ light, dark }) => {
           const swatch = document.createElement("div");
@@ -173,38 +180,49 @@
       createColorPicker();
 
       /* ------------------------------------------------------------------
-      Function that
+      Renders Smileys:
       - clears the old smileys
       - loops over the loaded smileys array
       - applies the current selectedColor
       - inserts updated SVGs into the UI
+      - filters by mood
       ------------------------------------------------------------------ */
       function renderSmileys() {
         const smileyList = document.getElementById("smileyList");
         smileyList.innerHTML = "";
 
-        allSmileys.forEach((smiley) => {
+        const filteredSmileys = allSmileys.filter(
+          (smiley) => smiley.mood === currentMood
+        );
+
+        filteredSmileys.forEach((smiley) => {
           const div = document.createElement("div");
           div.classList.add("smiley");
 
-          // Replace colors inside SVG string
+          // Replace fill colors
           const svgWithColor = smiley.svg
             .replace(
-              /class="base".*?fill=".*?"/,
+              /class="base" fill=".*?"/,
               `class="base" fill="${selectedColor.light}"`
             )
             .replace(
-              /class="face".*?fill=".*?"/g,
+              /class="face" fill=".*?"/g,
               `class="face" fill="${selectedColor.dark}"`
             );
 
           div.innerHTML = svgWithColor;
+
           smileyList.appendChild(div);
         });
       }
 
       /* ------------------------------------------------------------------
-      Create Tab Menu
+      Creates Tab Menu:
+      - Loops through mood labels to create tab buttons
+      - Sets the first tab as active by default
+      - Highlights the clicked tab and removes highlight from others
+      - Updates currentMood based on selected tab
+      - Re-renders smileys to show only those matching the selected mood
       ------------------------------------------------------------------ */
       function createTabMenu() {
         MenuItems.forEach((label, index) => {
@@ -221,8 +239,8 @@
               .forEach((btn) => btn.classList.remove("active"));
             tab.classList.add("active");
 
-            console.log("Switched to tab:", label);
-            // TODO: Load relevant smileys for this mood
+            currentMood = label; // Set the mood
+            renderSmileys(); // Re-render with the selected mood
           });
 
           tabMenu.appendChild(tab);
